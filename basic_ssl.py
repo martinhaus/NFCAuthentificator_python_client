@@ -17,15 +17,13 @@ keyDER = b64decode(public_key)
 keyPub = RSA.importKey(keyDER)
 
 cipher = Cipher_PKCS1_v1_5.new(keyPub)
-cipher_text = cipher.encrypt('hello'.encode())
-print('hello'.encode())
-print(MessageConverter.format_hex_array(cipher_text.hex()))
-emsg = b64encode(cipher_text)
+cipher_text = cipher.encrypt("hello".encode())
+b64message = base64.b64encode(cipher_text)
+print(cipher_text.hex())
+print(b64message)
 
-print(MessageConverter.format_hex_array(emsg.hex()))
-print(emsg)
-print(base64.b64decode(emsg))
+print(MessageConverter.format_hex_array(b64message.hex()))
 
-com.send_preencoded_message(APDUHeader.SEND_AES_KEY, MessageConverter.format_hex_array(emsg.hex()))
+com.send_preencoded_message(APDUHeader.SEND_AES_KEY, MessageConverter.format_hex_array(b64message.hex()))
 
 
