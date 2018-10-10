@@ -11,11 +11,14 @@ from MessageConverter import MessageConverter
 
 
 def diffiehelman(secret):
-    n = 22  # publicly known
-    g = 42  # publicly known
+    # n = generatePrime(1024)  # publicly known
+    # g = generatePrime(1024)  # publicly known
 
-    x = 13  # only Alice knows this
-    y = 53  # only Bob knows this
+    n = 23
+    g = 5
+
+    x = 6  # only Alice knows this
+    y = 15  # only Bob knows this
 
     aliceSends = (g ** x) % n
     bobComputes = aliceSends ** y % n
@@ -28,6 +31,9 @@ def diffiehelman(secret):
     print ("Alice computes ", aliceComputes)
 
     print ("In theory both should have ", (g ** (x * y)) % n)
+
+def dh_alice_sends(n ,g ,x):
+    return (g ** x) % n
 
 
 def generatePrime(size):

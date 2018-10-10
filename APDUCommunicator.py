@@ -17,6 +17,8 @@ class APDUCommunicator:
     def send_message(self, header, body):
         """ send introduction message and follow with all messages """
 
+        print(MessageConverter.string_to_byte_array(body) )
+
         message = APDUMessage(header, MessageConverter.string_to_byte_array(body)).convertToByteArray()
         data, sw1, sw2 = self.connection.transmit(message)
         print(toHexString(data))
