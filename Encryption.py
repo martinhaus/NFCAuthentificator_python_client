@@ -1,7 +1,13 @@
+import base64
+import hashlib
 from random import randint, randrange
 from secrets import token_bytes
 
+from Crypto.Cipher import AES
 from Crypto.PublicKey import RSA
+from Crypto.Util.Padding import unpad
+
+from MessageConverter import MessageConverter
 
 
 def diffiehelman(secret):
@@ -31,6 +37,17 @@ def generatePrime(size):
 
 
 def generate_aes_key():
-    """ generate 256 bit AES key """
-    return token_bytes(32)
+    """ generate 128 bit AES key """
+    return token_bytes(16)
+
+
+def aes_decrypt(encrypted, key):
+    key = hashlib.sha256(key).digest()
+    encrypted = base64.b64decode(encrypted)
+    # iv = encrypted[:AES.block_size]
+    # iv = bytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+    # print(iv)
+    cipher = AES.new(key, AES.MODE_ECB)
+    print(cipher.decrypt(encrypted))
+    return unpad(cipher.decrypt(encrypted), AES.block_size).decode('utf-8')
 
