@@ -1,50 +1,27 @@
 import base64
 import hashlib
-from random import randint, randrange
-from secrets import token_bytes
+import random
+import secrets
+import string
 
 from Crypto.Cipher import AES
-from Crypto.PublicKey import RSA
+from Crypto.Util import number
 from Crypto.Util.Padding import unpad
-
-from MessageConverter import MessageConverter
-
-
-def diffiehelman(secret):
-    # n = generatePrime(1024)  # publicly known
-    # g = generatePrime(1024)  # publicly known
-
-    n = 23
-    g = 5
-
-    x = 6  # only Alice knows this
-    y = 15  # only Bob knows this
-
-    aliceSends = (g ** x) % n
-    bobComputes = aliceSends ** y % n
-    bobSends = (g ** y) % n
-    aliceComputes = bobSends ** x % n
-
-    print ("Alice sends    ", aliceSends)
-    print ("Bob computes   ", bobComputes)
-    print ("Bob sends      ", bobSends)
-    print ("Alice computes ", aliceComputes)
-
-    print ("In theory both should have ", (g ** (x * y)) % n)
-
-def dh_alice_sends(n ,g ,x):
-    return (g ** x) % n
 
 
 def generatePrime(size):
-    return RSA.generate(size * 2).p
+    # return RSA.generate(size * 2).p
+    return number.getPrime(size)
 
-###################################################
+
+def generate_random_number(bits):
+    return random.getrandbits(bits)
 
 
 def generate_aes_key():
-    """ generate 128 bit AES key """
-    return token_bytes(16)
+    alphabet = string.ascii_letters + string.digits
+    password = ''.join(secrets.choice(alphabet) for i in range(20))
+    return password
 
 
 def aes_decrypt(encrypted, key):
