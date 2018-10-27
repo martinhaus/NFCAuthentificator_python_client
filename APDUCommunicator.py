@@ -19,7 +19,7 @@ import config
 class APDUCommunicator:
 
     def __init__(self):
-        self.connection = self.send_intro_message()
+        self.connection = self.__send_intro_message()
         self.aes_key = None
         self.exchange_key()
 
@@ -43,7 +43,7 @@ class APDUCommunicator:
 
         return data
 
-    def send_intro_message(self):
+    def __send_intro_message(self):
         """ sends introduction message and returns active connection to device """
 
         logging.debug('Initialized communication. waiting for device...')
@@ -70,7 +70,7 @@ class APDUCommunicator:
         # Return active connection that is later used to communicate with device
         return connection
 
-    def diffie_hellman_exchange(self):
+    def __diffie_hellman_exchange(self):
         """ Exchange AES key with Android device using Diffie-Hellman key exchange method """
 
         # Load pre-generated primes from file
@@ -99,7 +99,7 @@ class APDUCommunicator:
 
         self.aes_key = aes_key
 
-    def asymmetric_key_exchange(self):
+    def __asymmetric_key_exchange(self):
         """ Exchange AES key with Android device using asymmetric key exchange method """
 
         # Request public key from device
@@ -122,11 +122,11 @@ class APDUCommunicator:
 
     def exchange_key(self):
         if config.key_transfer_method == 'asymmetric':
-            self.asymmetric_key_exchange()
+            self.__asymmetric_key_exchange()
         elif config.key_transfer_method == 'diffie-hellman':
-            self.asymmetric_key_exchange()
+            self.__asymmetric_key_exchange()
         else:
-            self.asymmetric_key_exchange()
+            self.__asymmetric_key_exchange()
 
     def request_otp(self):
         """ Request one time password from device """
