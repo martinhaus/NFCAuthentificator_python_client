@@ -1,4 +1,5 @@
 class APDUMessage:
+    """ Class for storing APDU messages and their creation according to ISO ... """
 
     def __init__(self, header, body):
         self.header = header

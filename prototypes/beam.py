@@ -1,3 +1,3 @@
-from MessageConverter import  MessageConverter
+from APDUMessageConverter import  MessageConverter
 
 print(len(MessageConverter.string_to_byte_array("3f0a4289e54aef49dad756b608a2cef80b4c08e8cbbc3b00b0e5c3063bda61c3")))
