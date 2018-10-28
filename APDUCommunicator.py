@@ -84,7 +84,7 @@ class APDUCommunicator:
         g = random_pair['root']
 
         # Randomly choose alice secret
-        x = random.randint(1, 10**12)
+        x = random.getrandbits(2048)
 
         # Send prime and primitive root modulo (both publicly known, we are sending over insecure channel) to device
 

@@ -10,3 +10,6 @@ def generate_primes_with_root_modulos(count, prime_size):
 
     with open('primes.json', 'w') as outfile:
         json.dump(primes, outfile)
+
+
+generate_primes_with_root_modulos(10, 2048)
