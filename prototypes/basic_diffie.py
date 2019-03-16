@@ -1,7 +1,7 @@
-from APDUCommunicator import APDUCommunicator
-import Encryption
-from APDUHeader import APDUHeader
-from APDUMessageConverter import MessageConverter
+from android_nfc_com.APDUCommunicator import APDUCommunicator
+from android_nfc_com import Encryption
+from android_nfc_com.APDUHeader import APDUHeader
+from android_nfc_com.APDUMessageConverter import MessageConverter
 import json
 import random
 

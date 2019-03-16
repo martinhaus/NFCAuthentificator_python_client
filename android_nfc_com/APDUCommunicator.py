@@ -7,21 +7,20 @@ from Crypto.PublicKey import RSA
 from smartcard.System import readers
 from smartcard.util import toHexString
 from Crypto.Cipher import PKCS1_v1_5 as Cipher_PKCS1_v1_5
-import Encryption
-from APDUMessage import APDUMessage
-from APDUHeader import APDUHeader
-from APDUMessageConverter import MessageConverter
+from android_nfc_com import Encryption, config
+from android_nfc_com.APDUMessage import APDUMessage
+from android_nfc_com.APDUHeader import APDUHeader
+from android_nfc_com.APDUMessageConverter import MessageConverter
 from smartcard.CardRequest import CardRequest
 import logging
-import config
 
 
 class APDUCommunicator:
 
-    def __init__(self):
-        self.connection = self.__send_intro_message()
+    def __init__(self, method=None, waiting=True):
+        self.connection = self.__send_intro_message(waiting)
         self.aes_key = None
-        self.exchange_key()
+        self.exchange_key(method)
 
     def send_message(self, header, body):
         """ send introduction message and follow with all messages """
@@ -43,13 +42,14 @@ class APDUCommunicator:
 
         return data
 
-    def __send_intro_message(self):
+    def __send_intro_message(self, waiting):
         """ sends introduction message and returns active connection to device """
 
         logging.debug('Initialized communication. waiting for device...')
 
-        cardrequest = CardRequest(timeout=3000)
-        cardrequest.waitforcard()
+        if waiting:
+            cardrequest = CardRequest(timeout=3000)
+            cardrequest.waitforcard()
 
         r = readers()
         reader = r[0]
@@ -74,7 +74,7 @@ class APDUCommunicator:
         """ Exchange AES key with Android device using Diffie-Hellman key exchange method """
 
         # Load pre-generated primes from file
-        with open('primes.json', 'r') as input_primes:
+        with open('../primes.json', 'r') as input_primes:
             primes = json.load(input_primes)
 
         # Randomly choose one pair of prime and it's primitive root modulo
@@ -84,19 +84,17 @@ class APDUCommunicator:
         g = random_pair['root']
 
         # Randomly choose alice secret
-        x = random.getrandbits(2048)
+        x = random.getrandbits(5)
 
         # Send prime and primitive root modulo (both publicly known, we are sending over insecure channel) to device
 
         self.send_message(APDUHeader.SEND_DH_N, str(n))
         self.send_message(APDUHeader.SEND_DH_G, str(g))
-
         # Send our calculated value to the device and request their calculated value at the same time
         bob_sends = self.send_message(APDUHeader.SEND_DH_ALICE, str((g ** x) % n))
 
         # Construct key later to be used in AES cipher
         aes_key = str(int(MessageConverter.byte_array_to_string(bob_sends)) ** x % n).encode()
-
         self.aes_key = aes_key
 
     def __asymmetric_key_exchange(self):
@@ -120,11 +118,15 @@ class APDUCommunicator:
 
         self.aes_key = aes_key
 
-    def exchange_key(self):
-        if config.key_transfer_method == 'asymmetric':
+    def exchange_key(self, method=None):
+
+        if method is None:
+            method = config.key_transfer_method
+
+        if method == 'asymmetric':
             self.__asymmetric_key_exchange()
-        elif config.key_transfer_method == 'diffie-hellman':
-            self.__asymmetric_key_exchange()
+        elif method == 'diffie-hellman':
+            self.__diffie_hellman_exchange()
         else:
             self.__asymmetric_key_exchange()
 
@@ -132,7 +134,8 @@ class APDUCommunicator:
         """ Request one time password from device """
 
         otp = self.send_message(APDUHeader.REQUEST_OTP, "")
-        print(otp)
+        # self.connection.disconnect()
+        # print(otp)
 
         return otp
 

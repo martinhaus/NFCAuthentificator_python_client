@@ -31,6 +31,6 @@ def aes_decrypt(encrypted, key):
     # iv = bytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
     # print(iv)
     cipher = AES.new(key, AES.MODE_ECB)
-    print(cipher.decrypt(encrypted))
-    return unpad(cipher.decrypt(encrypted), AES.block_size).decode('utf-8')
+    # print(cipher.decrypt(encrypted))
+    return unpad(cipher.decrypt(encrypted), AES.block_size, style='pkcs7').decode('utf-8')
 

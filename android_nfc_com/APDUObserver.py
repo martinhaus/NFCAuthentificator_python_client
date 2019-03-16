@@ -3,7 +3,7 @@ from time import sleep
 
 from smartcard.CardMonitoring import CardObserver, CardMonitor
 
-from APDUCommunicator import APDUCommunicator
+from android_nfc_com.APDUCommunicator import APDUCommunicator
 
 
 class PhoneObserver(CardObserver):

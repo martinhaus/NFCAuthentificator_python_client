@@ -1,15 +1,14 @@
 import base64
-import logging
 from base64 import b64decode
 
 from Crypto.Cipher import PKCS1_v1_5 as Cipher_PKCS1_v1_5
 from Crypto.PublicKey import RSA
 
-from APDUCommunicator import APDUCommunicator
-from APDUHeader import APDUHeader
-from Encryption import aes_decrypt
-from Encryption import generate_aes_key
-from APDUMessageConverter import MessageConverter
+from android_nfc_com.APDUCommunicator import APDUCommunicator
+from android_nfc_com.APDUHeader import APDUHeader
+from android_nfc_com.Encryption import aes_decrypt
+from android_nfc_com.Encryption import generate_aes_key
+from android_nfc_com.APDUMessageConverter import MessageConverter
 
 
 def basic_ssl():

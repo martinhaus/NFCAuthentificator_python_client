@@ -1,19 +1,47 @@
-from prototypes.basic_diffie import basic_diffie
-from prototypes.basic_ssl import basic_ssl
+from android_nfc_com.APDUCommunicator import APDUCommunicator
 import time
 
-ssl_start = time.time()
-for i in range(500):
-    basic_ssl()
 
-ssl_end = time.time()
+class APDUTimeTesting:
 
-dh_start = time.time()
-for i in range(500):
-    basic_diffie()
+    def __init__(self):
+        pass
 
-dh_end = time.time()
+    @staticmethod
+    def asymmetric(count, always_new_instance=True):
+
+        start = time.time()
+        a = APDUCommunicator('asymmetric', False)
+        for i in range(count):
+            # if always_new_instance:
+            del a
+            a = APDUCommunicator('asymmetric', False)
+            a.request_otp()
+
+        end = time.time()
+
+        return (end - start) / count
 
 
-print("DH: " + str((dh_end - dh_start) / 500))
-print("SSL: " + str((ssl_end - ssl_start) / 500))
+    @staticmethod
+    def diffie_hellman(count, always_new_instance=False):
+
+        start = time.time()
+        a = APDUCommunicator('diffie-hellman', False)
+        for i in range(count):
+            if always_new_instance:
+                del a
+                a = APDUCommunicator('diffie-hellman', False)
+            a.request_otp()
+
+        end = time.time()
+
+        return (end - start) / count
+
+
+if __name__ == "__main__":
+
+    print('ASSYMETRIC 1000 ', APDUTimeTesting.asymmetric(1, False))
+    # print('DH 1000 ', APDUTimeTesting.diffie_hellman(10, True))
+
+
