@@ -13,14 +13,14 @@ from android_nfc_com.APDUHeader import APDUHeader
 from android_nfc_com.APDUMessageConverter import MessageConverter
 from smartcard.CardRequest import CardRequest
 import logging
-
+import hashlib
 
 class APDUCommunicator:
 
-    def __init__(self, method=None, waiting=True):
+    def __init__(self, method=None, key_size=None, waiting=True):
         self.connection = self.__send_intro_message(waiting)
         self.aes_key = None
-        self.exchange_key(method)
+        self.exchange_key(method, key_size)
 
     def send_message(self, header, body):
         """ send introduction message and follow with all messages """
@@ -38,6 +38,7 @@ class APDUCommunicator:
 
         # If message is encrypted, decrypt it
         if self.aes_key is not None:
+            print('AES key used: %s' % hashlib.sha256(self.aes_key).hexdigest())
             data = Encryption.aes_decrypt(MessageConverter.byte_array_to_string(data), self.aes_key)
 
         return data
@@ -70,11 +71,18 @@ class APDUCommunicator:
         # Return active connection that is later used to communicate with device
         return connection
 
-    def __diffie_hellman_exchange(self):
+    def __diffie_hellman_exchange(self, key_size=1024):
         """ Exchange AES key with Android device using Diffie-Hellman key exchange method """
 
+        print('Using DH key exchange with key size of %s bits' % key_size)
+
+        primes_input = 'primes_1024.json'
+
+        if key_size == 2048:
+            primes_input = 'primes.json'
+
         # Load pre-generated primes from file
-        with open('../primes.json', 'r') as input_primes:
+        with open(primes_input, 'r') as input_primes:
             primes = json.load(input_primes)
 
         # Randomly choose one pair of prime and it's primitive root modulo
@@ -97,11 +105,13 @@ class APDUCommunicator:
         aes_key = str(int(MessageConverter.byte_array_to_string(bob_sends)) ** x % n).encode()
         self.aes_key = aes_key
 
-    def __asymmetric_key_exchange(self):
+    def __asymmetric_key_exchange(self, key_size=1024):
         """ Exchange AES key with Android device using asymmetric key exchange method """
 
+        print ('Using RSA key exchange with key size of %s bits' % key_size)
+
         # Request public key from device
-        public_key = MessageConverter.byte_array_to_string(self.send_message(APDUHeader.REQUEST_PUBLIC_KEY, ""))
+        public_key = MessageConverter.byte_array_to_string(self.send_message(APDUHeader.REQUEST_PUBLIC_KEY, str(key_size)))
 
         # Generate AES key for later encryption
         aes_key = Encryption.generate_aes_key().encode()
@@ -118,24 +128,29 @@ class APDUCommunicator:
 
         self.aes_key = aes_key
 
-    def exchange_key(self, method=None):
+    def exchange_key(self, method=None, key_size=None):
+
+        if key_size is None and hasattr(config, 'key_size'):
+            key_size = config.key_size
+        else:
+            key_size = 1024
 
         if method is None:
             method = config.key_transfer_method
 
         if method == 'asymmetric':
-            self.__asymmetric_key_exchange()
+            self.__asymmetric_key_exchange(key_size)
         elif method == 'diffie-hellman':
-            self.__diffie_hellman_exchange()
+            self.__diffie_hellman_exchange(key_size)
         else:
-            self.__asymmetric_key_exchange()
+            self.__asymmetric_key_exchange(key_size)
 
     def request_otp(self):
         """ Request one time password from device """
 
         otp = self.send_message(APDUHeader.REQUEST_OTP, "")
         # self.connection.disconnect()
-        # print(otp)
+        print(otp)
 
         return otp
 

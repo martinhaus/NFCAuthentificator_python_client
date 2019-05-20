@@ -11,9 +11,12 @@ class PhoneObserver(CardObserver):
     def update(self, observable, actions):
         (addedcards, removedcards) = actions
         for card in addedcards:
-            com = APDUCommunicator()
-            com.request_otp()
+            try:
+                com = APDUCommunicator()
+                com.request_otp()
 
+            except Exception:
+                print("Connection could not be established, please try again...")
 
 def run():
     cardmonitor = CardMonitor()

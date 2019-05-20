@@ -8,8 +8,8 @@ def generate_primes_with_root_modulos(count, prime_size):
     for i in range(count):
         primes.append({'prime': generatePrime(prime_size), 'root': 2})
 
-    with open('primes_1024.json', 'w') as outfile:
+    with open('primes.json', 'w') as outfile:
         json.dump(primes, outfile)
 
 
-generate_primes_with_root_modulos(100, 1024)
+generate_primes_with_root_modulos(100, 2048)
