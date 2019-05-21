@@ -12,7 +12,7 @@ class PhoneObserver(CardObserver):
         (addedcards, removedcards) = actions
         for card in addedcards:
             try:
-                com = APDUCommunicator()
+                com = APDUCommunicator('diffie-hellman', 1024, False)
                 com.request_otp()
 
             except Exception:

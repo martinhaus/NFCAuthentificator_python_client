@@ -38,7 +38,6 @@ class APDUCommunicator:
 
         # If message is encrypted, decrypt it
         if self.aes_key is not None:
-            print('AES key used: %s' % hashlib.sha256(self.aes_key).hexdigest())
             data = Encryption.aes_decrypt(MessageConverter.byte_array_to_string(data), self.aes_key)
 
         return data
@@ -104,6 +103,8 @@ class APDUCommunicator:
         # Construct key later to be used in AES cipher
         aes_key = str(int(MessageConverter.byte_array_to_string(bob_sends)) ** x % n).encode()
         self.aes_key = aes_key
+        print('AES key used: %s' % hashlib.sha256(self.aes_key).hexdigest())
+
 
     def __asymmetric_key_exchange(self, key_size=1024):
         """ Exchange AES key with Android device using asymmetric key exchange method """
@@ -127,13 +128,14 @@ class APDUCommunicator:
         self.send_message(APDUHeader.SEND_AES_KEY, MessageConverter.format_hex_array(b64message.hex()))
 
         self.aes_key = aes_key
+        print('AES key used: %s' % hashlib.sha256(self.aes_key).hexdigest())
 
     def exchange_key(self, method=None, key_size=None):
 
-        if key_size is None and hasattr(config, 'key_size'):
-            key_size = config.key_size
-        else:
+        if key_size is None and not hasattr(config, 'key_size'):
             key_size = 1024
+        elif key_size is None and hasattr(config, 'key_size'):
+            key_size = config.key_size
 
         if method is None:
             method = config.key_transfer_method
